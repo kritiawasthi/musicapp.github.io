@@ -1,16 +1,48 @@
-var result
+var result;
 var SpeechRecognition = SpeechRecognition || webkitSpeechRecognition
 var SpeechGrammarList = SpeechGrammarList || webkitSpeechGrammarList
 var SpeechRecognitionEvent = SpeechRecognitionEvent || webkitSpeechRecognitionEvent
 
 
-var options = ['play the song', 'pause the song', 'loop through song', 'shuffle between songs', 'next song', 'previous song', 'show visualizer'];
-var grammar = '#JSGF V1.0; grammar options; public <option> = ' + options.join(' | ') + ' ;'
+//The next part of our code defines the grammar we want our app to recognise. The following variable is defined to hold our grammar:
+var option = [ 'play the song', 'pause the song', 'loop through song', 'shuffle between songs', 'next song', 'previous song', 'show visualizer'];
+var grammar = '#JSGF V1.0; grammar colors; public <option> = ' + option.join(' | ') + ' ;'
+
+
+	
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+/*
+Plugging the grammar into our speech recognition
+The next thing to do is define a speech recogntion instance to control the recognition for our application.
+ This is done using the SpeechRecognition() constructor.
+ We also create a new speech grammar list to contain our grammar, using the SpeechGrammarList() constructor.
+*/
 
 var recognition = new SpeechRecognition();
 var speechRecognitionList = new SpeechGrammarList();
 
+/*
+We add our grammar to the list using the SpeechGrammarList.addFromString() method. 
+This accepts as parameters the string we want to add, 
+plus optionally a weight value that specifies the importance of this grammar in relation of other grammars available in the list
+ (can be from 0 to 1 inclusive.) 
+ The added grammar is available in the lst as a SpeechGrammar object instance.
+*/
+
 speechRecognitionList.addFromString(grammar, 1);
+
+/*
+We then add the SpeechGrammarList to the speech recognition instance by setting it to the value of the SpeechRecognition.grammars property. 
+We also set a few other properties of the recognition instance before we move on:
+SpeechRecognition.lang: Sets the language of the recognition. Setting this is good practice, and therefore recommended.
+SpeechRecognition.interimResults: Defines whether the speech recognition system should return interim results,
+ or just final results. Final results are good enough for this simple demo.SpeechRecognition.maxAlternatives: 
+ Sets the number of alternative potential matches that should be returned per result. 
+ This can sometimes be useful, say if a result is not completely clear and you want to display a list if alternatives for the user to choose the correct one from. 
+ But it is not needed for this simple demo, so we are just specifying one (which is actually the default anyway.)
+*/
+
 
 recognition.grammars = speechRecognitionList;
 //recognition.continuous = false;
@@ -18,30 +50,29 @@ recognition.lang = 'en-US';
 recognition.interimResults = false;
 recognition.maxAlternatives = 1;
 
+/*
+Note: SpeechRecognition.continuous controls whether continuous results are captured, 
+or just a single result each time recognition is started. It is commented out because currently it is not implemented in Gecko,
+so setting this was breaking the app. You can get a similar result by simply stopping the recognition after the first result is received, 
+as you'll see later on.
+*/
 
-$('.fa-microphone').click(function() {
-    $('.fa-microphone').removeClass("active");
+
+
+//innilitize the voice recognition
+
+ $('.fa-microphone').on('click',function(){
     recognition.start();
-
-})
-
-
-recognition.onresult = function(event) {
-    // The SpeechRecognitionEvent results property returns a SpeechRecognitionResultList object
-    // The SpeechRecognitionResultList object contains SpeechRecognitionResult objects.
-    // It has a getter so it can be accessed like an array
-    // The [last] returns the SpeechRecognitionResult at the last position.
-    // Each SpeechRecognitionResult object contains SpeechRecognitionAlternative objects that contain individual results.
-    // These also have getters so they can be accessed like arrays.
-    // The [0] returns the SpeechRecognitionAlternative at position 0.
-    // We then return the transcript property of the SpeechRecognitionAlternative object
-
-    var last = event.results.length - 1;
-    result = event.results[last][0].transcript;
-    //console.log(result);
+});
+  
+  
+  recognition.onresult = function(event) {
+  var last = event.results.length - 1;
+  result  = event.results[last][0].transcript; 
+  
 
 
-    if (result == "play the song") {
+  if (result == "play the song") {
         $('.fa-microphone').addClass("active");
         var song = document.querySelector('audio');
         $('.play-icon').removeClass('fa-play').addClass('fa-pause');
@@ -55,9 +86,8 @@ recognition.onresult = function(event) {
         $('.play-icon').removeClass('fa-pause').addClass('fa-play');
         song.pause();
     }
-
-
-    if(result=="previous song"){
+	
+    if(result == "previous song"){
 
 
              $('.fa-microphone').addClass("active");
@@ -184,6 +214,4 @@ recognition.onresult = function(event) {
 
 
     }
-
-
 }

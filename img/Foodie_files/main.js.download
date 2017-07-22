@@ -1,0 +1,5 @@
+$(document).ready(function() {
+    $('#user-email').on('keypress',function() {
+        console.log($('#user-email').val())
+    });
+});
